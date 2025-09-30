@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+global i
+i = 0 #measurement index
 
 ## Reamostrar o dado de posição para algo mais próximo da realidade (10Hz)
 # - Resample (matlab), mas por enquanto só deleta as amostras 
@@ -106,6 +108,19 @@ def plotFigures():
     plt.legend()
     plt.show()
 
+def bufferMeasurement(buffer, measure = 0):
+    buffer = np.append(buffer, measure, axis=0)
+    buffer = np.delete(buffer, 0, axis=0)
+    return buffer
+
+def collectCurrentAcceleration():
+    global i
+    currentTime = phoneTime[i]
+    currentAcceleration = phoneAcce[i]
+    i = i + 1
+    return currentTime, currentAcceleration
+
+
 carData = open("C:\\Users\\charl\\Downloads\\CoppeliaSim_Edu_V4_1_0_Win\\SensorDataPFC\\CarAccelerometerData.txt")
 phoneData = open("C:\\Users\\charl\\Downloads\\CoppeliaSim_Edu_V4_1_0_Win\\SensorDataPFC\\PhoneAccelerometerData.txt")
 
@@ -134,41 +149,26 @@ phoneVx, phoneVy, phoneVz = calcVeloc(phoneTime, phonePosiX, phonePosiY, phonePo
 
 phoneAcce = np.concatenate((phoneAcceX, phoneAcceY, phoneAcceZ), axis=1)
 
-## Estimating paramethers phi_a, theta_a, psi_a
-
 g0 = 9.80665
+Nf = 3
+acceleration_measured_buffer = np.zeros((Nf, 3))
+weights = np.ones((Nf, 3))
+an = 0
 
-
-# 1. Non-accelerated state (NS):
-
-anX = []
-anY = []
-anZ = []
-Nf = 1
-
-for k in range(len(phoneAcce[:,0])):
-    anX = "teste"#????
-
-# for k in range(10):
-#     print(k) 
-
-# 2. Accelerated state (AS):
-
-# 3. Unknown state (US)
-
-## Computing the Euler Angles
-# Theta_a = pi/2
-
-theta_a = np.pi/2
-
-R_theta = np.matrix([[1, 0, 0],[0, np.cos(theta_a), -np.sin(theta_a)], [0, np.sin(theta_a), np.cos(theta_a)]])
+while True:    
+    currentTime, currentAcceleration = collectCurrentAcceleration()
+    acceleration_measured_buffer = bufferMeasurement(acceleration_measured_buffer, currentAcceleration)
+    # print(acceleration_measured_buffer)
+    an = 0
+    for k in range(Nf-1):
+        an += (1/g0) * acceleration_measured_buffer[Nf - k] * weights[Nf -k]
+    
+    print(an)
 
 
 
 
 
-
-#plotFigures()
 
 
 
