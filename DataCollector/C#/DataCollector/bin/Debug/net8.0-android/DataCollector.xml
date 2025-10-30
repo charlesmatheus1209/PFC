@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>DataCollector</name>
+    </assembly>
+    <members>
+        <member name="M:DataCollector.Services.PeriodicTask.Start(System.Int32)">
+            <summary>
+            Inicia a coleta de dados e o timer periódico.
+            </summary>
+        </member>
+        <member name="M:DataCollector.Services.PeriodicTask.OnTimerEvent(System.Object,System.Timers.ElapsedEventArgs)">
+            <summary>
+            Executado a cada período definido.
+            </summary>
+        </member>
+        <member name="M:DataCollector.Services.PeriodicTask.Stop">
+            <summary>
+            Para a coleta e o timer.
+            </summary>
+        </member>
+        <member name="M:DataCollector.Services.PeriodicTask.OnAccelerometerChanged(DataCollector.Model.AccelerometerDataModel)">
+            <summary>
+            Recebe atualizações do acelerômetro.
+            </summary>
+        </member>
+        <member name="M:DataCollector.Services.PeriodicTask.OnLocationChanged(DataCollector.Model.GPSDataModel)">
+            <summary>
+            Recebe atualizações do GPS.
+            </summary>
+        </member>
+    </members>
+</doc>

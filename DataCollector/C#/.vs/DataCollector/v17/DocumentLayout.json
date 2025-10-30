@@ -1,0 +1,193 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|c:\\users\\cmnascimento4\\documents\\pfc\\pfc\\datacollector\\datacollector\\services\\gpsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|solutionrelative:datacollector\\services\\gpsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\datacollector\\services\\accelerometerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|solutionrelative:datacollector\\services\\accelerometerservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\datacollector\\mainpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|solutionrelative:datacollector\\mainpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\datacollector\\services\\periodictask.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|solutionrelative:datacollector\\services\\periodictask.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\datacollector\\mainpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|solutionrelative:datacollector\\mainpage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\datacollector\\services\\logservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|solutionrelative:datacollector\\services\\logservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\datacollector\\model\\datamodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|solutionrelative:datacollector\\model\\datamodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\datacollector\\model\\accelerometerdatamodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|solutionrelative:datacollector\\model\\accelerometerdatamodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\datacollector\\model\\gpsdatamodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AE2379-7926-4B85-B754-C71390F6AEC0}|DataCollector\\DataCollector.csproj|solutionrelative:datacollector\\model\\gpsdatamodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 257,
+          "SelectedChildIndex": 12,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{004be353-6879-467c-9d1e-9ac23cdf6d49}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:2:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{d212f56b-c48a-434c-a121-1c5d80b59b9f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "DataModel.cs",
+              "DocumentMoniker": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\Model\\DataModel.cs",
+              "RelativeDocumentMoniker": "DataCollector\\Model\\DataModel.cs",
+              "ToolTip": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\Model\\DataModel.cs",
+              "RelativeToolTip": "DataCollector\\Model\\DataModel.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-20T00:18:49.464Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "AccelerometerDataModel.cs",
+              "DocumentMoniker": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\Model\\AccelerometerDataModel.cs",
+              "RelativeDocumentMoniker": "DataCollector\\Model\\AccelerometerDataModel.cs",
+              "ToolTip": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\Model\\AccelerometerDataModel.cs",
+              "RelativeToolTip": "DataCollector\\Model\\AccelerometerDataModel.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-20T00:18:40.23Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "GPSDataModel.cs",
+              "DocumentMoniker": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\Model\\GPSDataModel.cs",
+              "RelativeDocumentMoniker": "DataCollector\\Model\\GPSDataModel.cs",
+              "ToolTip": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\Model\\GPSDataModel.cs",
+              "RelativeToolTip": "DataCollector\\Model\\GPSDataModel.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABQAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-20T00:01:34.836Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "MainPage.xaml",
+              "DocumentMoniker": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\MainPage.xaml",
+              "RelativeDocumentMoniker": "DataCollector\\MainPage.xaml",
+              "ToolTip": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\MainPage.xaml",
+              "RelativeToolTip": "DataCollector\\MainPage.xaml",
+              "ViewState": "AQIAABEAAAAAAAAAAAAgwCIAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-10-19T23:48:05.938Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "PeriodicTask.cs",
+              "DocumentMoniker": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\Services\\PeriodicTask.cs",
+              "RelativeDocumentMoniker": "DataCollector\\Services\\PeriodicTask.cs",
+              "ToolTip": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\Services\\PeriodicTask.cs",
+              "RelativeToolTip": "DataCollector\\Services\\PeriodicTask.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAuwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-19T23:07:54.474Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "GPSService.cs",
+              "DocumentMoniker": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\Services\\GPSService.cs",
+              "RelativeDocumentMoniker": "DataCollector\\Services\\GPSService.cs",
+              "ToolTip": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\Services\\GPSService.cs",
+              "RelativeToolTip": "DataCollector\\Services\\GPSService.cs",
+              "ViewState": "AQIAABQAAAAAAAAAAAAAwDgAAAA+AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-13T18:34:38.146Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "LogService.cs",
+              "DocumentMoniker": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\Services\\LogService.cs",
+              "RelativeDocumentMoniker": "DataCollector\\Services\\LogService.cs",
+              "ToolTip": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\Services\\LogService.cs",
+              "RelativeToolTip": "DataCollector\\Services\\LogService.cs",
+              "ViewState": "AQIAADoAAAAAAAAAAAAgwEsAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-13T18:11:42.772Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AccelerometerService.cs",
+              "DocumentMoniker": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\Services\\AccelerometerService.cs",
+              "RelativeDocumentMoniker": "DataCollector\\Services\\AccelerometerService.cs",
+              "ToolTip": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\Services\\AccelerometerService.cs",
+              "RelativeToolTip": "DataCollector\\Services\\AccelerometerService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAACQAAAAXAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-13T16:38:33.405Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MainPage.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\MainPage.xaml.cs",
+              "RelativeDocumentMoniker": "DataCollector\\MainPage.xaml.cs",
+              "ToolTip": "C:\\Users\\cmnascimento4\\Documents\\PFC\\PFC\\DataCollector\\DataCollector\\MainPage.xaml.cs",
+              "RelativeToolTip": "DataCollector\\MainPage.xaml.cs",
+              "ViewState": "AQIAAAUAAAAAAAAAAAAiwC4AAAAeAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-13T18:18:32.541Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

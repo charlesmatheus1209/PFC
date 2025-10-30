@@ -1,0 +1,34 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="DataCollector.MainPage"
+             Title="Aceleração do Dispositivo">
+
+    <!-- ScrollView permite rolar o conteúdo verticalmente -->
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+            <Label Text="Aceleração e GPS do Dispositivo"
+                   FontSize="24"
+                   HorizontalOptions="Center" />
+
+            <!-- Acelerômetro -->
+            <Label x:Name="xLabel" Text="X:" FontSize="18" />
+            <Label x:Name="yLabel" Text="Y:" FontSize="18" />
+            <Label x:Name="zLabel" Text="Z:" FontSize="18" />
+
+            <!-- GPS -->
+            <Label Text="Informações do GPS" FontSize="20" HorizontalOptions="Center" Margin="10,20,10,0"/>
+            <Label x:Name="Timestamp" Text="Timestamp" FontSize="18"/>
+            <Label x:Name="latitudeLabel" Text="Latitude:" FontSize="18"/>
+            <Label x:Name="longitudeLabel" Text="Longitude:" FontSize="18"/>
+            <Label x:Name="altitudeLabel" Text="Altitude:" FontSize="18"/>
+            <Label x:Name="speedLabel" Text="Velocidade:" FontSize="18"/>
+            <Label x:Name="courseLabel" Text="Course:" FontSize="18"/>
+            <Label x:Name="satellitesLabel" Text="Satelites:" FontSize="18"/>
+            <Label x:Name="fixLabel" Text="Fix:" FontSize="18"/>
+
+            <!-- Botões -->
+            <Button Text="Iniciar Coleta" Clicked="OnStartClicked" />
+            <Button Text="Parar Coleta" Clicked="OnStopClicked" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
