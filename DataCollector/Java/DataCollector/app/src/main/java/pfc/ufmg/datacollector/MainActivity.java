@@ -56,21 +56,31 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Em uma Activity ou Fragment
         AttitudeEstimator estimation = new AttitudeEstimator();
         try {
-            AttitudeEstimator.AttitudeResult result =
-                    estimation.estimate(this, "PhoneAccelerometerDataDeuCerto.csv");
+            // Inicializa a leitura do CSV
+            estimation.initializeCsvReading(this, "PhoneAccelerometerDataDeuCerto.csv");
 
-            double phiDegrees = result.phiDegrees;
-            double thetaDegrees = result.thetaDegrees;
-            double psiDegrees = result.psiDegrees;
+            // Processa cada linha individualmente
+            AttitudeEstimator.AttitudeResult result;
+            while ((result = estimation.processNextSample()) != null) {
+                if (result.phiAvailable) {
+                    Log.d("Attitude", "Phi: " + result.phiDegrees + "°");
+                }
+                if (result.thetaAvailable) {
+                    Log.d("Attitude", "Theta: " + result.thetaDegrees + "°");
+                }
+                if (result.psiAvailable) {
+                    Log.d("Attitude", "Psi: " + result.psiDegrees + "°");
+                }
 
-            Log.d("Attitude", "Phi: " + phiDegrees + "°");
-            Log.d("Attitude", "Theta: " + thetaDegrees + "°");
-            Log.d("Attitude", "Psi: " + psiDegrees + "°");
+                // Aqui você pode adicionar um delay para simular tempo real
+                Thread.sleep(50); // 50ms = 20Hz
+            }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
         initializeViews();
