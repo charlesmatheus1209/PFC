@@ -6,8 +6,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.IOException;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -16,23 +20,28 @@ import androidx.core.app.ActivityCompat;
 
 import java.time.LocalDateTime;
 
+import pfc.ufmg.datacollector.data.LogDataManager;
 import pfc.ufmg.datacollector.sensors.AccelerometerDataCollector;
 import pfc.ufmg.datacollector.sensors.GnssDataCollector;
+import pfc.ufmg.datacollector.calculations.AttitudeEstimator;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    private static final int PERMISSIONS_FINE_LOCATION = 99;
-    private static final int SAMPLE_INTERVAL_MS = 200; // 5 Hz
+    private static final int PERMISSIONS_REQUEST_CODE = 99;
+    private static final int SAMPLE_INTERVAL_MS = 100; // 10 Hz
 
     // Views
     private TextView tv_lat, tv_lon, tv_altitude, tv_accuracy, tv_speed, tv_timestamp;
     private TextView tv_satellites, tv_course, tv_fix;
     private TextView tv_accel_x, tv_accel_y, tv_accel_z;
+    private TextView tv_log_status, tv_record_count;
+    private Button btn_start_log, btn_stop_log;
 
     // Coletores de dados
     private GnssDataCollector gnssCollector;
     private AccelerometerDataCollector accelerometerCollector;
+    private LogDataManager logDataManager;
 
     // Handler para coleta uniforme
     private Handler handler = new Handler();
@@ -47,13 +56,31 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Em uma Activity ou Fragment
+        AttitudeEstimator estimation = new AttitudeEstimator();
+        try {
+            AttitudeEstimator.AttitudeResult result =
+                    estimation.estimate(this, "PhoneAccelerometerDataDeuCerto.csv");
+
+            double phiDegrees = result.phiDegrees;
+            double thetaDegrees = result.thetaDegrees;
+            double psiDegrees = result.psiDegrees;
+
+            Log.d("Attitude", "Phi: " + phiDegrees + "°");
+            Log.d("Attitude", "Theta: " + thetaDegrees + "°");
+            Log.d("Attitude", "Psi: " + psiDegrees + "°");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         initializeViews();
         initializeCollectors();
+        setupLogButtons();
 
-        if (checkLocationPermission()) {
+        if (checkPermissions()) {
             startDataCollection();
         } else {
-            requestLocationPermission();
+            requestPermissions();
         }
     }
 
@@ -70,6 +97,10 @@ public class MainActivity extends AppCompatActivity {
         tv_accel_x = findViewById(R.id.tv_accel_x);
         tv_accel_y = findViewById(R.id.tv_accel_y);
         tv_accel_z = findViewById(R.id.tv_accel_z);
+        tv_log_status = findViewById(R.id.tv_log_status);
+        tv_record_count = findViewById(R.id.tv_record_count);
+        btn_start_log = findViewById(R.id.btn_start_log);
+        btn_stop_log = findViewById(R.id.btn_stop_log);
     }
 
     private void initializeCollectors() {
@@ -89,6 +120,42 @@ public class MainActivity extends AppCompatActivity {
                         lastAccelData = data;
                     }
                 });
+
+        // Inicializa o gerenciador de logs
+        logDataManager = new LogDataManager(this);
+    }
+
+    private void setupLogButtons() {
+        btn_start_log.setOnClickListener(v -> startLogging());
+        btn_stop_log.setOnClickListener(v -> stopLogging());
+
+        updateLogButtonsState();
+    }
+
+    private void startLogging() {
+        if (logDataManager.startLogging()) {
+            updateLogButtonsState();
+            Toast.makeText(this, "Salvando em: " + LogDataManager.getLogDirectory(),
+                    Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void stopLogging() {
+        logDataManager.stopLogging();
+        updateLogButtonsState();
+    }
+
+    private void updateLogButtonsState() {
+        boolean isLogging = logDataManager.isLogging();
+        btn_start_log.setEnabled(!isLogging);
+        btn_stop_log.setEnabled(isLogging);
+
+        if (isLogging) {
+            tv_log_status.setText("Gravando: " + logDataManager.getCurrentFileName());
+        } else {
+            tv_log_status.setText("Não está gravando");
+            tv_record_count.setText("0 registros");
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -134,6 +201,12 @@ public class MainActivity extends AppCompatActivity {
         // Atualiza dados do acelerômetro
         if (lastAccelData != null) {
             updateAccelerometerDisplay(lastAccelData);
+        }
+
+        // Salva no arquivo CSV se estiver logando
+        if (logDataManager.isLogging()) {
+            logDataManager.logData(lastGnssData, lastAccelData);
+            tv_record_count.setText(logDataManager.getRecordCount() + " registros");
         }
 
         // Log para debug
@@ -207,16 +280,41 @@ public class MainActivity extends AppCompatActivity {
         if (accelerometerCollector != null) {
             accelerometerCollector.stop();
         }
+
+        if (logDataManager != null && logDataManager.isLogging()) {
+            logDataManager.stopLogging();
+        }
     }
 
-    private boolean checkLocationPermission() {
-        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED;
+    private boolean checkPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+
+            return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
+                            == PackageManager.PERMISSION_GRANTED;
+        } else {
+            // Android 12 e anteriores
+            return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            == PackageManager.PERMISSION_GRANTED;
+        }
     }
 
-    private void requestLocationPermission() {
-        requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                PERMISSIONS_FINE_LOCATION);
+    private void requestPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissions(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.READ_MEDIA_IMAGES
+            }, PERMISSIONS_REQUEST_CODE);
+        } else {
+            requestPermissions(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+            }, PERMISSIONS_REQUEST_CODE);
+        }
     }
 
     @Override
@@ -229,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (checkLocationPermission()) {
+        if (checkPermissions()) {
             startDataCollection();
         }
     }
@@ -246,11 +344,19 @@ public class MainActivity extends AppCompatActivity {
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == PERMISSIONS_FINE_LOCATION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == PERMISSIONS_REQUEST_CODE) {
+            boolean allGranted = true;
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    allGranted = false;
+                    break;
+                }
+            }
+
+            if (allGranted) {
                 startDataCollection();
             } else {
-                Toast.makeText(this, "Permissão de localização necessária.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Permissões necessárias não concedidas.", Toast.LENGTH_LONG).show();
                 finish();
             }
         }
