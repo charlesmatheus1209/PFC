@@ -1,19 +1,17 @@
 package pfc.ufmg.datacollector.calculations;
 
-import android.content.Context;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Classe para estimação de atitude (phi, theta, psi) a partir de dados de acelerômetro e GPS
  * Conversão do algoritmo MATLAB attitude_estimation_v7_gimbal_lock
- * Versão com processamento iterativo em tempo real
+ * Versão com processamento em tempo real
  */
 public class AttitudeEstimator {
+
+    private static final String TAG = "AttitudeEstimator";
 
     // Constantes
     private static final double G_EARTH = 9.8; // Aceleração da gravidade
@@ -22,7 +20,7 @@ public class AttitudeEstimator {
     private static final double FS = 20.0; // Frequência de amostragem
     private static final double GPS_FILTER_DELAY = 1.5;
     private static final double VLOW = 15.0; // Velocidade mínima GPS (km/h)
-    private static final double AHIGH = 0.12; // Limite superior de aceleração (g)
+    private static final double AHIGH = 0.22; // Limite superior de aceleração (g)
     private static final double ALOW = 0.08; // Limite inferior de desvio padrão
     private static final double MAX_DURATION_EVENT = 10.0; // Duração máxima do evento (s)
     private static final int NACCEL_GRAV = 200;
@@ -52,41 +50,39 @@ public class AttitudeEstimator {
     private int posMaxAccelDev = 1;
     private double[] gA = {0, 0, 1}; // Vetor gravidade normalizado
 
-    // Para leitura iterativa
-    private BufferedReader csvReader;
-    private boolean headerSkipped = false;
+    // Histórico de dados GPS
     private int gpsFilterDelaySamples;
-    private List<CsvData> dataHistory; // Histórico para acessar dados atrasados do GPS
+    private List<SensorData> dataHistory;
+
+    // Listener para notificar mudanças
+    private AttitudeUpdateListener updateListener;
 
     /**
      * Interface para callback de atualização
      */
     public interface AttitudeUpdateListener {
-        void onAttitudeUpdate(AttitudeResult result, int sampleNumber);
-        void onProcessingComplete(AttitudeResult finalResult);
+        void onAttitudeUpdate(AttitudeResult result);
     }
 
     /**
-     * Classe para armazenar dados do CSV
+     * Classe para armazenar dados dos sensores
      */
-    private static class CsvData {
-        int contreg;
-        double eixox;
-        double eixoy;
-        double eixoz;
-        int gpsFix;
-        double gpsSpeed;
-        double gpsDirection;
-        double gpsAlt;
-        double gpsRtc;
+    public static class SensorData {
+        public double accelX;
+        public double accelY;
+        public double accelZ;
+        public int gpsFix;
+        public double gpsSpeed;
+        public double gpsDirection;
+        public double gpsAlt;
+        public double gpsRtc;
 
-        CsvData(int contreg, double eixox, double eixoy, double eixoz,
-                int gpsFix, double gpsSpeed, double gpsDirection,
-                double gpsAlt, double gpsRtc) {
-            this.contreg = contreg;
-            this.eixox = eixox;
-            this.eixoy = eixoy;
-            this.eixoz = eixoz;
+        public SensorData(double accelX, double accelY, double accelZ,
+                          int gpsFix, double gpsSpeed, double gpsDirection,
+                          double gpsAlt, double gpsRtc) {
+            this.accelX = accelX;
+            this.accelY = accelY;
+            this.accelZ = accelZ;
             this.gpsFix = gpsFix;
             this.gpsSpeed = gpsSpeed;
             this.gpsDirection = gpsDirection;
@@ -120,6 +116,23 @@ public class AttitudeEstimator {
             this.thetaAvailable = theta != 1234;
             this.psiAvailable = psi != 1234;
         }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            if (phiAvailable) {
+                sb.append(String.format("Phi: %.2f°", phiDegrees));
+            }
+            if (thetaAvailable) {
+                if (sb.length() > 0) sb.append(", ");
+                sb.append(String.format("Theta: %.2f°", thetaDegrees));
+            }
+            if (psiAvailable) {
+                if (sb.length() > 0) sb.append(", ");
+                sb.append(String.format("Psi: %.2f°", psiDegrees));
+            }
+            return sb.length() > 0 ? sb.toString() : "Nenhum ângulo disponível";
+        }
     }
 
     /**
@@ -130,6 +143,14 @@ public class AttitudeEstimator {
         generateFilterCoefficients();
         gpsFilterDelaySamples = (int) Math.ceil(GPS_FILTER_DELAY / (1.0 / FS));
         dataHistory = new ArrayList<>();
+        Log.i(TAG, "AttitudeEstimator inicializado");
+    }
+
+    /**
+     * Define o listener para atualizações
+     */
+    public void setUpdateListener(AttitudeUpdateListener listener) {
+        this.updateListener = listener;
     }
 
     /**
@@ -176,149 +197,22 @@ public class AttitudeEstimator {
     }
 
     /**
-     * Inicializa a leitura do arquivo CSV
+     * Processa uma nova amostra de dados dos sensores
+     * Este método deve ser chamado toda vez que novos dados forem coletados
      */
-    public void initializeCsvReading(Context context, String filename) throws IOException {
-        InputStream inputStream = context.getAssets().open(filename);
-        csvReader = new BufferedReader(new InputStreamReader(inputStream));
-        headerSkipped = false;
-        currentSample = 0;
-
-        // Reseta o estado
-        phiA = 1234;
-        thetaA = 1234;
-        psiA = 1234;
-        accelBufferGravCont = 0;
-        accelBufferCont = 0;
-        gpsBufferCont = 0;
-        gpsNsamp = 0;
-        event = false;
-        maxAccelDev = 0;
-        posMaxAccelDev = 1;
-        gA = new double[]{0, 0, 1};
-        dataHistory.clear();
-        initializeBuffers();
-    }
-
-    /**
-     * Lê e processa a próxima linha do CSV
-     * @return AttitudeResult com os ângulos atuais, ou null se chegou ao fim do arquivo
-     */
-    public AttitudeResult processNextSample() throws IOException {
-        if (csvReader == null) {
-            throw new IllegalStateException("CSV não foi inicializado. Chame initializeCsvReading() primeiro.");
-        }
-
-        // Pula o cabeçalho na primeira leitura
-        if (!headerSkipped) {
-            csvReader.readLine();
-            headerSkipped = true;
-        }
-
-        String line = csvReader.readLine();
-        if (line == null) {
-            // Fim do arquivo
-            csvReader.close();
-            csvReader = null;
-            return null;
-        }
-
-        // Parse da linha
-        CsvData data = parseCsvLine(line);
-        if (data == null) {
-            // Linha inválida, tenta a próxima
-            return processNextSample();
-        }
-
+    public void processSample(SensorData data) {
         // Adiciona ao histórico
         dataHistory.add(data);
 
-        // Processa a amostra
-        processSample(data, currentSample);
-        currentSample++;
-
-        return new AttitudeResult(phiA, thetaA, psiA);
-    }
-
-    /**
-     * Processa todas as amostras restantes do CSV com callback
-     */
-    public void processAllSamples(AttitudeUpdateListener listener) throws IOException {
-        AttitudeResult result;
-        while ((result = processNextSample()) != null) {
-            if (listener != null) {
-                listener.onAttitudeUpdate(result, currentSample);
-            }
-        }
-        if (listener != null) {
-            listener.onProcessingComplete(new AttitudeResult(phiA, thetaA, psiA));
-        }
-    }
-
-    /**
-     * Fecha o arquivo CSV
-     */
-    public void close() {
-        if (csvReader != null) {
-            try {
-                csvReader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            csvReader = null;
-        }
-    }
-
-    /**
-     * Método original para processar tudo de uma vez (mantido para compatibilidade)
-     */
-    public AttitudeResult estimate(Context context, String filename) throws IOException {
-        initializeCsvReading(context, filename);
-        AttitudeResult result = null;
-        while ((result = processNextSample()) != null) {
-            // Processa todas as amostras
-        }
-        return new AttitudeResult(phiA, thetaA, psiA);
-    }
-
-    /**
-     * Faz parse de uma linha do CSV
-     */
-    private CsvData parseCsvLine(String line) {
-        String[] parts = line.split(",");
-        if (parts.length >= 9) {
-            try {
-                int contreg = Integer.parseInt(parts[0].trim());
-                double eixox = Double.parseDouble(parts[1].trim());
-                double eixoy = Double.parseDouble(parts[2].trim());
-                double eixoz = Double.parseDouble(parts[3].trim());
-                int gpsFix = Integer.parseInt(parts[4].trim());
-                double gpsSpeed = Double.parseDouble(parts[5].trim());
-                double gpsDirection = Double.parseDouble(parts[6].trim());
-                double gpsAlt = Double.parseDouble(parts[7].trim());
-                double gpsRtc = Double.parseDouble(parts[8].trim());
-
-                return new CsvData(contreg, eixox, eixoy, eixoz,
-                        gpsFix, gpsSpeed, gpsDirection, gpsAlt, gpsRtc);
-            } catch (NumberFormatException e) {
-                return null;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Processa uma única amostra
-     */
-    private void processSample(CsvData data, int n) {
         // Atualiza buffer do filtro
         shiftBuffer(filterBuffer);
-        filterBuffer[filterBuffer.length - 1][0] = data.eixox / G_EARTH;
-        filterBuffer[filterBuffer.length - 1][1] = data.eixoy / G_EARTH;
-        filterBuffer[filterBuffer.length - 1][2] = data.eixoz / G_EARTH;
+        filterBuffer[filterBuffer.length - 1][0] = data.accelX / G_EARTH;
+        filterBuffer[filterBuffer.length - 1][1] = data.accelY / G_EARTH;
+        filterBuffer[filterBuffer.length - 1][2] = data.accelZ / G_EARTH;
 
         // Aguarda inicialização do filtro
-        if (n <= FILTER_ORDER) {
+        if (currentSample <= FILTER_ORDER) {
+            currentSample++;
             return;
         }
 
@@ -331,13 +225,16 @@ public class AttitudeEstimator {
 
             if (accelDev < ALOW) {
                 accelBufferGravCont++;
-                System.arraycopy(accelF, 0, accelBufferGrav[accelBufferGravCont - 1], 0, 3);
+                if (accelBufferGravCont <= NACCEL_GRAV) {
+                    System.arraycopy(accelF, 0, accelBufferGrav[accelBufferGravCont - 1], 0, 3);
+                }
             } else {
                 accelBufferGravCont = 0;
             }
 
             if (accelBufferGravCont == NACCEL_GRAV) {
                 estimateRollPitch();
+                notifyUpdate();
             }
         }
 
@@ -356,6 +253,7 @@ public class AttitudeEstimator {
                     if (gpsBufferCont > 0 && gpsBuffer[gpsBufferCont - 1][2] == 1234) {
                         gpsBufferCont = 0;
                     }
+                    notifyUpdate();
                 }
                 event = false;
                 maxAccelDev = 0;
@@ -364,12 +262,22 @@ public class AttitudeEstimator {
         }
 
         // Coleta dados GPS
-        int m = n - gpsFilterDelaySamples;
+        int m = currentSample - gpsFilterDelaySamples;
         if (m >= 0 && m < dataHistory.size()) {
             processGpsData(dataHistory.get(m));
         }
 
         gpsNsamp++;
+        currentSample++;
+    }
+
+    /**
+     * Notifica o listener sobre atualização
+     */
+    private void notifyUpdate() {
+        if (updateListener != null) {
+            updateListener.onAttitudeUpdate(getCurrentResult());
+        }
     }
 
     /**
@@ -468,7 +376,8 @@ public class AttitudeEstimator {
         phiA = Math.atan2(-gA[1], -gA[2]);
         thetaA = Math.asin(gA[0]);
 
-        System.out.println("phi_a = " + Math.toDegrees(phiA) + " deg. theta_a = " + Math.toDegrees(thetaA));
+        Log.i(TAG, String.format("Roll (Phi) estimado: %.2f°, Pitch (Theta) estimado: %.2f°",
+                Math.toDegrees(phiA), Math.toDegrees(thetaA)));
     }
 
     /**
@@ -575,15 +484,15 @@ public class AttitudeEstimator {
 
         if (accelGps.size() > 2 && meanResiduo < 0.1) {
             psiA = meanPsiA;
-            System.out.println("psi_a = " + Math.toDegrees(psiA) + " deg. Residuo: " + meanResiduo +
-                    " Num. pts. GPS: " + accelGps.size());
+            Log.i(TAG, String.format("Yaw (Psi) estimado: %.2f° (Resíduo: %.4f, GPS pts: %d)",
+                    Math.toDegrees(psiA), meanResiduo, accelGps.size()));
         }
     }
 
     /**
      * Processa dados GPS
      */
-    private void processGpsData(CsvData data) {
+    private void processGpsData(SensorData data) {
         if (data.gpsFix == 3 && data.gpsSpeed >= VLOW) {
             if (gpsBufferCont == 0) {
                 gpsBuffer[0][0] = data.gpsRtc;
@@ -665,5 +574,26 @@ public class AttitudeEstimator {
      */
     public AttitudeResult getCurrentResult() {
         return new AttitudeResult(phiA, thetaA, psiA);
+    }
+
+    /**
+     * Reseta o estimador
+     */
+    public void reset() {
+        phiA = 1234;
+        thetaA = 1234;
+        psiA = 1234;
+        accelBufferGravCont = 0;
+        accelBufferCont = 0;
+        gpsBufferCont = 0;
+        gpsNsamp = 0;
+        currentSample = 0;
+        event = false;
+        maxAccelDev = 0;
+        posMaxAccelDev = 1;
+        gA = new double[]{0, 0, 1};
+        dataHistory.clear();
+        initializeBuffers();
+        Log.i(TAG, "AttitudeEstimator resetado");
     }
 }

@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import pfc.ufmg.datacollector.calculations.AttitudeEstimator;
 import pfc.ufmg.datacollector.sensors.AccelerometerDataCollector;
 import pfc.ufmg.datacollector.sensors.GnssDataCollector;
 
@@ -19,7 +20,7 @@ public class LogDataManager {
 
     private static final String TAG = "LogDataManager";
     private static final String CSV_HEADER = "contreg,eixox,eixoy,eixoz,gps_fix,gps_speed,gps_direction,gps_alt,gps_rtc\n";
-
+    private AttitudeEstimator attitudeEstimator;
     private final Context context;
     private FileWriter fileWriter;
     private File currentFile;
@@ -32,12 +33,20 @@ public class LogDataManager {
     public LogDataManager(Context context) {
         this.context = context;
         this.dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault());
+        this.attitudeEstimator = new AttitudeEstimator();
+    }
+    /**
+     * Define o listener para atualizações de atitude
+     */
+    public void setAttitudeUpdateListener(AttitudeEstimator.AttitudeUpdateListener listener) {
+        attitudeEstimator.setUpdateListener(listener);
     }
 
     /**
      * Inicia o logging criando um novo arquivo CSV
      * @return true se iniciou com sucesso, false caso contrário
      */
+    //@Override
     public boolean startLogging() {
         if (isLogging) {
             Log.w(TAG, "Logging já está ativo");
@@ -55,6 +64,9 @@ public class LogDataManager {
 
             isLogging = true;
             recordCount = 0;
+
+            // Reseta o estimador de atitude
+            attitudeEstimator.reset();
 
             Log.i(TAG, "Logging iniciado: " + currentFile.getAbsolutePath());
             Toast.makeText(context, "Gravação iniciada: " + currentFile.getName(),
@@ -97,7 +109,7 @@ public class LogDataManager {
     }
 
     /**
-     * Loga os dados coletados no arquivo CSV
+     * Loga os dados coletados no arquivo CSV e processa para estimação de atitude
      */
     public void logData(GnssDataCollector.GnssData gnssData,
                         AccelerometerDataCollector.AccelerometerData accelData) {
@@ -118,26 +130,34 @@ public class LogDataManager {
             StringBuilder csvLine = new StringBuilder();
             csvLine.append(recordCount).append(",");
 
-
-            //csvLine.append(timestamp).append(",");
-            //csvLine.append(datetime).append(",");
-
             double rtcTime = ((double)timestamp - (double)firstTimestamp) /1000.0;
+
             // Dados do acelerômetro
+            double accelX = 0, accelY = 0, accelZ = 0;
             if (accelData != null) {
-                csvLine.append(accelData.x).append(",");
-                csvLine.append(accelData.y).append(",");
-                csvLine.append(accelData.z).append(",");;
+                accelX = accelData.x;
+                accelY = accelData.y;
+                accelZ = accelData.z;
+                csvLine.append(accelX).append(",");
+                csvLine.append(accelY).append(",");
+                csvLine.append(accelZ).append(",");
             } else {
                 csvLine.append(",,,");
             }
 
             // Dados GNSS
+            int gpsFix = 0;
+            double gpsSpeed = 0, gpsDirection = 0, gpsAlt = 0;
             if (gnssData != null) {
-                csvLine.append(gnssData.hasFix ? "3" : "0").append(",");
-                csvLine.append(gnssData.hasSpeed ? gnssData.speed : "").append(",");
-                csvLine.append(gnssData.bearing).append(","); // GPS direction
-                csvLine.append(gnssData.hasAltitude ? gnssData.altitude : "").append(",");
+                gpsFix = gnssData.hasFix ? 3 : 0;
+                gpsSpeed = gnssData.hasSpeed ? gnssData.speed : 0;
+                gpsDirection = gnssData.bearing;
+                gpsAlt = gnssData.hasAltitude ? gnssData.altitude : 0;
+
+                csvLine.append(gpsFix).append(",");
+                csvLine.append(gpsSpeed).append(",");
+                csvLine.append(gpsDirection).append(",");
+                csvLine.append(gpsAlt).append(",");
                 csvLine.append(rtcTime);
             } else {
                 csvLine.append(" , , , ,");
@@ -147,9 +167,16 @@ public class LogDataManager {
             csvLine.append("\n");
 
             fileWriter.write(csvLine.toString());
-            fileWriter.flush(); // Garante que os dados sejam escritos imediatamente
+            fileWriter.flush();
 
             recordCount++;
+
+            // Processa os dados para estimação de atitude
+            AttitudeEstimator.SensorData sensorData = new AttitudeEstimator.SensorData(
+                    accelX, accelY, accelZ,
+                    gpsFix, gpsSpeed, gpsDirection, gpsAlt, rtcTime
+            );
+            attitudeEstimator.processSample(sensorData);
 
             // Log a cada 50 registros
             if (recordCount % 50 == 0) {

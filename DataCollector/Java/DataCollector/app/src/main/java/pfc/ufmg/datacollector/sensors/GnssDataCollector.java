@@ -63,7 +63,7 @@ public class GnssDataCollector {
 
                 this.hasSpeed = location.hasSpeed();
                 if (hasSpeed) {
-                    this.speed = location.getSpeed();
+                    this.speed = location.getSpeed() * (float)3.6;
                 }
             }
         }

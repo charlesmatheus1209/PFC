@@ -98,11 +98,11 @@
             android:layout_marginBottom="4dp">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Latitude:"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_lat"
@@ -119,7 +119,7 @@
             android:layout_marginBottom="4dp">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Longitude:"
@@ -140,7 +140,7 @@
             android:layout_marginBottom="4dp">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Altitude (m):"
@@ -161,7 +161,7 @@
             android:layout_marginBottom="4dp">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Precisão (m):"
@@ -182,10 +182,10 @@
             android:layout_marginBottom="4dp">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Velocidade (m/s):"
+                android:text="Velocidade (km/h):"
                 android:textStyle="bold"/>
 
             <TextView
@@ -203,7 +203,7 @@
             android:layout_marginBottom="4dp">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Direção (°):"
@@ -224,7 +224,7 @@
             android:layout_marginBottom="4dp">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Satélites:"
@@ -245,7 +245,7 @@
             android:layout_marginBottom="16dp">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Status:"
@@ -336,7 +336,26 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
                 android:text="0.000"/>
+
         </LinearLayout>
+
+        <!-- Estimação de Atitude -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Estimação de Atitude"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/tv_attitude"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Aguardando dados..."
+            android:textSize="14sp"
+            android:layout_marginBottom="8dp"/>
 
     </LinearLayout>
 </ScrollView>

@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView tv_lat, tv_lon, tv_altitude, tv_accuracy, tv_speed, tv_timestamp;
     private TextView tv_satellites, tv_course, tv_fix;
     private TextView tv_accel_x, tv_accel_y, tv_accel_z;
+    private TextView tv_attitude;
     private TextView tv_log_status, tv_record_count;
     private Button btn_start_log, btn_stop_log;
 
@@ -56,7 +58,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        AttitudeEstimator estimation = new AttitudeEstimator();
+        //Manter a tela sempre ligada
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        /*AttitudeEstimator estimation = new AttitudeEstimator();
         try {
             // Inicializa a leitura do CSV
             estimation.initializeCsvReading(this, "PhoneAccelerometerDataDeuCerto.csv");
@@ -82,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-
+*/
         initializeViews();
         initializeCollectors();
         setupLogButtons();
@@ -111,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         tv_record_count = findViewById(R.id.tv_record_count);
         btn_start_log = findViewById(R.id.btn_start_log);
         btn_stop_log = findViewById(R.id.btn_stop_log);
+        tv_attitude = findViewById(R.id.tv_attitude);
     }
 
     private void initializeCollectors() {
@@ -133,6 +139,16 @@ public class MainActivity extends AppCompatActivity {
 
         // Inicializa o gerenciador de logs
         logDataManager = new LogDataManager(this);
+        // Configura listener para atualização de atitude
+        logDataManager.setAttitudeUpdateListener(new AttitudeEstimator.AttitudeUpdateListener() {
+            @Override
+            public void onAttitudeUpdate(AttitudeEstimator.AttitudeResult result) {
+                runOnUiThread(() -> {
+                    tv_attitude.setText(result.toString());
+                    Log.d(TAG, "Atitude atualizada: " + result.toString());
+                });
+            }
+        });
     }
 
     private void setupLogButtons() {
