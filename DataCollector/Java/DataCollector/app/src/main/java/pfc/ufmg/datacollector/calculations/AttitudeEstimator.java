@@ -1,5 +1,6 @@
 package pfc.ufmg.datacollector.calculations;
 
+import android.app.AlertDialog;
 import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ public class AttitudeEstimator {
     private static final double FS = 20.0; // Frequência de amostragem
     private static final double GPS_FILTER_DELAY = 1.5;
     private static final double VLOW = 15.0; // Velocidade mínima GPS (km/h)
-    private static final double AHIGH = 0.22; // Limite superior de aceleração (g)
+    private static final double AHIGH = 0.12; // Limite superior de aceleração (g)
     private static final double ALOW = 0.08; // Limite inferior de desvio padrão
     private static final double MAX_DURATION_EVENT = 10.0; // Duração máxima do evento (s)
     private static final int NACCEL_GRAV = 200;
@@ -340,6 +341,8 @@ public class AttitudeEstimator {
             accelBufferCont = 1;
         } else {
             accelBufferCont++;
+
+            // TODO Isso está diferente do MATLAB
             if (accelBufferCont > accelBuffer.length) {
                 accelBufferCont = accelBuffer.length;
             }
@@ -392,7 +395,7 @@ public class AttitudeEstimator {
         int endGps = gpsBufferCont;
         int startGps = 0;
 
-        for (int k = endGps - 1; k >= 0; k--) {
+        /*for (int k = endGps - 1; k >= 0; k--) {
             if (gpsBuffer[k][2] != 1234) {
                 startGps = k;
                 break;
@@ -401,7 +404,7 @@ public class AttitudeEstimator {
 
         if (endGps - startGps < 2) {
             return;
-        }
+        }*/
 
         // Calcula aceleração via GPS
         List<double[]> accelGps = new ArrayList<>();
@@ -482,7 +485,7 @@ public class AttitudeEstimator {
         double meanResiduo = residuoList.stream().mapToDouble(Double::doubleValue).average().orElse(0);
         double meanPsiA = psiAList.stream().mapToDouble(Double::doubleValue).average().orElse(0);
 
-        if (accelGps.size() > 2 && meanResiduo < 0.1) {
+        if (accelGps.size() > 2 && meanResiduo < 0.2) {
             psiA = meanPsiA;
             Log.i(TAG, String.format("Yaw (Psi) estimado: %.2f° (Resíduo: %.4f, GPS pts: %d)",
                     Math.toDegrees(psiA), meanResiduo, accelGps.size()));

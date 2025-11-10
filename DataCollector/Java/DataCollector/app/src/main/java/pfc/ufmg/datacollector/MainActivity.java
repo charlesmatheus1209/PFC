@@ -1,7 +1,11 @@
 package pfc.ufmg.datacollector;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,7 +15,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -53,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     private GnssDataCollector.GnssData lastGnssData;
     private AccelerometerDataCollector.AccelerometerData lastAccelData;
 
+    private boolean SavingAndUsingData = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,33 +70,9 @@ public class MainActivity extends AppCompatActivity {
         //Manter a tela sempre ligada
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        /*AttitudeEstimator estimation = new AttitudeEstimator();
-        try {
-            // Inicializa a leitura do CSV
-            estimation.initializeCsvReading(this, "PhoneAccelerometerDataDeuCerto.csv");
+        readFromFile();
 
-            // Processa cada linha individualmente
-            AttitudeEstimator.AttitudeResult result;
-            while ((result = estimation.processNextSample()) != null) {
-                if (result.phiAvailable) {
-                    Log.d("Attitude", "Phi: " + result.phiDegrees + "°");
-                }
-                if (result.thetaAvailable) {
-                    Log.d("Attitude", "Theta: " + result.thetaDegrees + "°");
-                }
-                if (result.psiAvailable) {
-                    Log.d("Attitude", "Psi: " + result.psiDegrees + "°");
-                }
-
-                // Aqui você pode adicionar um delay para simular tempo real
-                Thread.sleep(50); // 50ms = 20Hz
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-*/
+        //starting app
         initializeViews();
         initializeCollectors();
         setupLogButtons();
@@ -96,6 +81,93 @@ public class MainActivity extends AppCompatActivity {
             startDataCollection();
         } else {
             requestPermissions();
+        }
+    }
+
+    private void readFromFile(){
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Leitura de Arquivo");
+        builder.setMessage("Deseja ler os dados gravados em um arquivo csv?");
+
+        // add the buttons
+        builder.setPositiveButton("Sim",  new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*"); // aceita qualquer tipo de arquivo
+                startActivityForResult(intent, 1234);
+            }
+        });
+        builder.setNegativeButton("Não",  new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                SavingAndUsingData = true;
+            }
+        });
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1234 && resultCode == RESULT_OK && data != null) {
+            Uri uri = data.getData();
+
+            if (uri != null) {
+                Toast.makeText(this, "Arquivo selecionado: " + uri.getPath(), Toast.LENGTH_LONG).show();
+
+                // 🔹 Exemplo: ler conteúdo de texto do arquivo
+                readFile(uri);
+            }
+        }
+    }
+
+    private void readFile(Uri uri) {
+
+        try (InputStream inputStream = getContentResolver().openInputStream(uri);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+
+            StringBuilder conteudo = new StringBuilder();
+            String linha = reader.readLine();
+            AttitudeEstimator attitudeEstimator = new AttitudeEstimator();
+            attitudeEstimator.reset();
+            attitudeEstimator.setUpdateListener(new AttitudeEstimator.AttitudeUpdateListener() {
+                @Override
+                public void onAttitudeUpdate(AttitudeEstimator.AttitudeResult result) {
+                    runOnUiThread(() -> {
+                        tv_attitude.setText(result.toString());
+                        Log.d(TAG, "Atitude atualizada: " + result.toString());
+                    });
+                }
+            });
+            while ((linha = reader.readLine()) != null) {
+                // Processa os dados para estimação de atitude
+                String[] data = linha.split(",");
+                AttitudeEstimator.SensorData sensorData = new AttitudeEstimator.SensorData(
+                        Double.parseDouble(data[1]),
+                        Double.parseDouble(data[2]),
+                        Double.parseDouble(data[3]),
+                        Integer.parseInt(data[4]),
+                        Double.parseDouble(data[5]),
+                        Double.parseDouble(data[6]),
+                        Double.parseDouble(data[7]),
+                        Double.parseDouble(data[8])
+                );
+                attitudeEstimator.processSample(sensorData);
+                conteudo.append(linha).append("\n");
+            }
+
+            Log.d(TAG, "Conteúdo do arquivo:\n" + conteudo);
+            Toast.makeText(this, "Arquivo lido com sucesso!", Toast.LENGTH_SHORT).show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Erro ao ler o arquivo!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -159,6 +231,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startLogging() {
+        if(!SavingAndUsingData)
+            return;
+
         if (logDataManager.startLogging()) {
             updateLogButtonsState();
             Toast.makeText(this, "Salvando em: " + LogDataManager.getLogDirectory(),
@@ -229,10 +304,12 @@ public class MainActivity extends AppCompatActivity {
             updateAccelerometerDisplay(lastAccelData);
         }
 
-        // Salva no arquivo CSV se estiver logando
-        if (logDataManager.isLogging()) {
-            logDataManager.logData(lastGnssData, lastAccelData);
-            tv_record_count.setText(logDataManager.getRecordCount() + " registros");
+        if(this.SavingAndUsingData) {
+            // Salva no arquivo CSV se estiver logando
+            if (logDataManager.isLogging()) {
+                logDataManager.logData(lastGnssData, lastAccelData);
+                tv_record_count.setText(logDataManager.getRecordCount() + " registros");
+            }
         }
 
         // Log para debug

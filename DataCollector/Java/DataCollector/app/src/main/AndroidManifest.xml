@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
+    <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
+
     <!-- Permissões de Armazenamento -->
     <!-- Para Android 12 e anteriores -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
