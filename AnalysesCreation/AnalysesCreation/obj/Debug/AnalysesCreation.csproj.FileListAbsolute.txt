@@ -1,0 +1,14 @@
+C:\Users\cmnascimento4\Documents\PFC\PFC\AnalysesCreation\AnalysesCreation\bin\Debug\AnalysesCreation.exe.config
+C:\Users\cmnascimento4\Documents\PFC\PFC\AnalysesCreation\AnalysesCreation\bin\Debug\AnalysesCreation.exe
+C:\Users\cmnascimento4\Documents\PFC\PFC\AnalysesCreation\AnalysesCreation\bin\Debug\AnalysesCreation.pdb
+C:\Users\cmnascimento4\Documents\PFC\PFC\AnalysesCreation\AnalysesCreation\bin\Debug\OSIsoft.AF.UI.dll
+C:\Users\cmnascimento4\Documents\PFC\PFC\AnalysesCreation\AnalysesCreation\bin\Debug\OSIsoft.AFSDK.dll
+C:\Users\cmnascimento4\Documents\PFC\PFC\AnalysesCreation\AnalysesCreation\bin\Debug\ADODB.dll
+C:\Users\cmnascimento4\Documents\PFC\PFC\AnalysesCreation\AnalysesCreation\bin\Debug\System.ValueTuple.dll
+C:\Users\cmnascimento4\Documents\PFC\PFC\AnalysesCreation\AnalysesCreation\bin\Debug\Polly.dll
+C:\Users\cmnascimento4\Documents\PFC\PFC\AnalysesCreation\AnalysesCreation\bin\Debug\OSIsoft.AF.UI.xml
+C:\Users\cmnascimento4\Documents\PFC\PFC\AnalysesCreation\AnalysesCreation\obj\Debug\AnalysesCreation.csproj.AssemblyReference.cache
+C:\Users\cmnascimento4\Documents\PFC\PFC\AnalysesCreation\AnalysesCreation\obj\Debug\AnalysesCreation.csproj.CoreCompileInputs.cache
+C:\Users\cmnascimento4\Documents\PFC\PFC\AnalysesCreation\AnalysesCreation\obj\Debug\Analyses.31C5A7D6.Up2Date
+C:\Users\cmnascimento4\Documents\PFC\PFC\AnalysesCreation\AnalysesCreation\obj\Debug\AnalysesCreation.exe
+C:\Users\cmnascimento4\Documents\PFC\PFC\AnalysesCreation\AnalysesCreation\obj\Debug\AnalysesCreation.pdb
